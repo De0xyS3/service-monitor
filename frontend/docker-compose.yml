@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend:
+    image: de0xys/backend-service:latest  # Utiliza la imagen pre-construida
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://admin:password123@mongo:27017/service_monitoring?authSource=admin
+      - PORT=3001
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  frontend:
+    image: de0xys/frontend-service:latest  # Utiliza la imagen pre-construida
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://backend:3001
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+
